@@ -1,0 +1,13 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formElem__wrap{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+    border: 2px dotted gray;
+    padding: 5px;
+}
