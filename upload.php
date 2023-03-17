@@ -3,6 +3,8 @@
 $input_name = 'img';
 $allow = array();
  
+$fileNameArr=[];
+
 $deny = array(
 	'phtml', 'php', 'php3', 'php4', 'php5', 'php6', 'php7', 'phps', 'cgi', 'pl', 'asp', 
 	'aspx', 'shtml', 'shtm', 'htaccess', 'htpasswd', 'ini', 'log', 'sh', 'js', 'html', 
@@ -34,7 +36,6 @@ if (isset($_FILES[$input_name])) {
 	foreach ($files as $file) {
 		$error = $success = '';
  
-		// Проверим на ошибки загрузки.
 		if (!empty($file['error']) || empty($file['tmp_name'])) {
 			switch (@$file['error']) {
 				case 1:
@@ -91,11 +92,12 @@ if (isset($_FILES[$input_name])) {
 				$name = $parts['filename'] . $prefix . '.' . $parts['extension'];
  
 				if (move_uploaded_file($file['tmp_name'], $path . $name)) {
-					// $success = 'Файл успешно загружен.';
                     $time_end[$i] = microtime(true);
                     $time[$i] = $time_end[$i] - $time_start;  
                     $time[$i] = str_replace( ".", ","  ,  "" . $time[$i]);
+					file_put_contents($path . "nameFile.txt", "file '$name' duration 2\n", FILE_APPEND);
                     $success = "Время загрузки: " . $time[$i] . ' сек.';   
+					array_push($fileNameArr,$name);
 				} else {
 					$error = 'Не удалось загрузить файл.';
 				}
@@ -103,9 +105,75 @@ if (isset($_FILES[$input_name])) {
 		}
 		
 		if (!empty($success)) {
-			echo  $success;		
+			echo  $success;			
 		} else {
 			echo  $error;
 		}
 	}
+
+	if(count($fileNameArr) != 0 ) genVideo($fileNameArr);
+	
+
 }
+
+function genVideo($fileNameArr){
+	$files ="";
+	$filterRules="";
+	$count =0;
+	$concan = '';
+
+	foreach($fileNameArr as $fileName){
+		$files .= "-loop 1 -t 2 -i ./files/$fileName ";
+		$filterRules .= "[$count:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black,setdar=16/9[v$count]; ";
+		$concan .= "[v$count]";
+		$count++;
+
+	}
+
+
+	$comm = str_replace(array("\n\r","\r\n","\n"), '', 
+			"ffmpeg 
+				 $files 
+				-filter_complex \"
+					$filterRules
+					$concan concat=$count,format=yuv420p[v]
+				\"
+				-map \"[v]\" -y ./files/output.mp4" );
+
+	file_put_contents("./files/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
+
+	echo shell_exec($comm);
+}
+
+
+// ffmpeg -loop 1 -t 2 -i ./files/img001.jpeg -loop 1 -t 4 -i img002.jpeg
+// 				-filter_complex "
+// 					[0:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black[v0];
+// 					[1:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black[v1];
+// 					[v0][v1]concat=2,format=yuv420p[v]
+// 				"
+// 				-map"[v]" -y ./files/Test.mp4
+
+
+
+
+
+
+
+
+
+
+
+// ffmpeg
+// -loop 1 -t 2 -i img001.jpeg
+// -loop 1 -t 2 -i img002.jpeg
+// -loop 1 -t 2 -i img003.jpeg
+// -filter_complex 
+// "[0:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=out:st=4:d=1[v0]; 
+//  [1:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v1]; 
+//  [2:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v2]; 
+//  [3:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v3]; 
+//  [4:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v4]; 
+//  [v0][v1][v2][v3][v4]concat=n=5:v=1,format=yuv420p[v]" -map "[v]"  -shortest output7.mp4
+
+// -vf "scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black" -y  output.mp4
