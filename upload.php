@@ -138,7 +138,7 @@ function genVideo($fileNameArr){
 					$filterRules
 					$concan concat=$count,format=yuv420p[v]
 				\"
-				-map \"[v]\" -y ./files/output.mp4 -y -progress ./files/output.txt" );
+				-map \"[v]\" -y ./video/output.mp4 -y -progress ./files/output.txt" );
 
 	file_put_contents("./files/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
 

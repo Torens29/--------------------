@@ -20,6 +20,6 @@ body {
     padding: 5px;
 }
 
-.progress_wrap {
-
+.download {
+    display: none;
 }

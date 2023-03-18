@@ -18,8 +18,16 @@ if($content){
 
     preg_match_all("/progress=[A-Za-z]+/", $content, $condition);
 
-    echo (   (int)explode('frame=', array_pop($frames[0]))[1] ) / $maxFrame * 100; 
+    echo (int)explode('frame=', array_pop($frames[0]))[1]/ $maxFrame * 100; 
 
+    $condition = array_pop($condition[0]);
+    if($condition == "progress=end"){
+        $filesInDir = glob('./files/*'); 
+        foreach($filesInDir as $fileOnDir) {
+            if(is_file($fileOnDir)) unlink($fileOnDir); 
+        }
+    }
+    echo ' ' .  $condition;
     // echo "Duration: " . array_pop($frames[0]) . "<br>";
     // echo "Current Time: " . array_pop($condition[0]) . "<br>";
     // echo "maxFrame: " . $maxFrame . "";

@@ -1,12 +1,12 @@
 const formElem = document.querySelector("#formElem");
 const timeDownload = document.querySelectorAll(".time");
-const progressBar = document.querySelector(".progress")
-
+const progressBar = document.querySelector(".progress");
+const linkOfDownload = document.querySelector(".download");
 
 formElem.onsubmit = async (e) => {
     e.preventDefault();
     progress(formElem);
-    
+
     fetch("upload.php", {
         method: "POST",
         body: new FormData(formElem),
@@ -32,7 +32,7 @@ formElem.onsubmit = async (e) => {
 
 
 function progress(formElem) {
-    setInterval(function () {
+    let interval = setInterval(function () {
         fetch("progress.php",  {
             method: "POST",
             body: new FormData(formElem),
@@ -41,12 +41,15 @@ function progress(formElem) {
                 return response.text();
             })
             .then((progr) => {
-                progressBar.setAttribute("value", progr)
+                let prog = progr.split(" ")
+                progressBar.setAttribute("value", prog[0])
                 
-                console.log("Progresssssss: ", progr);
-                
+                console.log("Progresssssss: ", prog);
+                if(prog[1] == "progress=end") {
+                    linkOfDownload.style.display= 'block';
+                    clearInterval(interval);
+                }
             });
-        
     }, 1000); 
 }
 
