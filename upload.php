@@ -138,42 +138,11 @@ function genVideo($fileNameArr){
 					$filterRules
 					$concan concat=$count,format=yuv420p[v]
 				\"
-				-map \"[v]\" -y ./files/output.mp4" );
+				-map \"[v]\" -y ./files/output.mp4 -y -progress ./files/output.txt" );
 
 	file_put_contents("./files/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
 
 	echo shell_exec($comm);
 }
 
-
-// ffmpeg -loop 1 -t 2 -i ./files/img001.jpeg -loop 1 -t 4 -i img002.jpeg
-// 				-filter_complex "
-// 					[0:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black[v0];
-// 					[1:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black[v1];
-// 					[v0][v1]concat=2,format=yuv420p[v]
-// 				"
-// 				-map"[v]" -y ./files/Test.mp4
-
-
-
-
-
-
-
-
-
-
-
-// ffmpeg
-// -loop 1 -t 2 -i img001.jpeg
-// -loop 1 -t 2 -i img002.jpeg
-// -loop 1 -t 2 -i img003.jpeg
-// -filter_complex 
-// "[0:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=out:st=4:d=1[v0]; 
-//  [1:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v1]; 
-//  [2:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v2]; 
-//  [3:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v3]; 
-//  [4:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v4]; 
-//  [v0][v1][v2][v3][v4]concat=n=5:v=1,format=yuv420p[v]" -map "[v]"  -shortest output7.mp4
-
-// -vf "scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black" -y  output.mp4
+//  1> files/output.txt 2>&1

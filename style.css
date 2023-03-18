@@ -1,20 +1,25 @@
-body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.formElem{
+body {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
 }
 
-.formElem__wrap{
+.formElem {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.formElem__wrap {
     display: flex;
     flex-direction: row;
     margin-bottom: 10px;
     border: 2px dotted gray;
     padding: 5px;
+}
+
+.progress_wrap {
+
 }
