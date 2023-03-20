@@ -114,7 +114,7 @@ if (isset($_FILES[$input_name])) {
 		}
 	}
 
-	if(count($fileNameArr) != 0 && $error =='') {
+	if(count($fileNameArr) != 0 ) {
 		
 		$timeGener = genVideo($fileNameArr);
 		insert($link,"true", $timeGener,  'C:/Server/data/htdocs/Генерация видео/video/output.mp4');
@@ -148,7 +148,7 @@ function genVideo($fileNameArr){
 	file_put_contents("./files/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
 	$timeStart = microtime(true);
 	echo shell_exec($comm);
-	return microtime(true) - $timeStart;
+	return str_replace( ".", ","  ,  "" . microtime(true) - $timeStart) ;
 	
 }
 
