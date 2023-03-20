@@ -1,5 +1,10 @@
 <?php
-$content = @file_get_contents('./files/output.txt');
+
+$dirGl = __DIR__;
+$dir = str_replace("\\", "/", $dirGl);
+$path = $dir . '/files';
+
+$content = @file_get_contents($dir . '/files/output.txt');
 
 if($content){
     $maxFrame = 0;
@@ -7,7 +12,7 @@ if($content){
     // $maxFrame = implode(", ", $files[0]['name']) ;
     foreach ($files[0]['name'] as $fileName){
 
-        if ($fileName !=="" && file_exists('./files/' . $fileName)) {
+        if ($fileName !=="" && file_exists($path . '/' . $fileName)) {
                 $maxFrame += 50;
             }
     }
@@ -22,9 +27,12 @@ if($content){
 
     $condition = array_pop($condition[0]);
     if($condition == "progress=end"){
-        $filesInDir = glob('./files/*'); 
+        $filesInDir = glob($path . '/*'); 
         foreach($filesInDir as $fileOnDir) {
-            if(is_file($fileOnDir)) unlink($fileOnDir); 
+            if(is_file($fileOnDir)) {
+                unlink($fileOnDir); 
+                // rmdir($path );
+            }
         }
     }
     echo ' ' .  $condition;

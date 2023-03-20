@@ -2,7 +2,7 @@
 
 $input_name = 'img';
 $allow = array();
-include_once("./bd.php");
+// include_once("./bd.php");
 $fileNameArr=[];
 
 $deny = array(
@@ -10,8 +10,10 @@ $deny = array(
 	'aspx', 'shtml', 'shtm', 'htaccess', 'htpasswd', 'ini', 'log', 'sh', 'js', 'html', 
 	'htm', 'css', 'sql', 'spl', 'scgi', 'fcgi'
 );
-
-$path = __DIR__ . '/files/';
+$dirGl = __DIR__;
+$dir = str_replace("\\", "/", $dirGl);
+$path = $dir . '/files';
+$pathVideo = $dir . '/video';
 
 if (isset($_FILES[$input_name])) {
     $time_start = microtime(true);
@@ -19,6 +21,9 @@ if (isset($_FILES[$input_name])) {
 
 	if (!is_dir($path)) {
 		mkdir($path, 0777, true);
+	}
+	if (!is_dir($pathVideo)) {
+		mkdir($pathVideo, 0777, true);
 	}
  
 	$files = array();
@@ -86,16 +91,16 @@ if (isset($_FILES[$input_name])) {
 			} else {
 				$i = 0;
 				$prefix = '';
-				while (is_file($path . $parts['filename'] . $prefix . '.' . $parts['extension'])) {
+				while (is_file($path . "/" . $parts['filename'] . $prefix . '.' . $parts['extension'])) {
 		  			$prefix = '(' . ++$i . ')';
 				}
 				$name = $parts['filename'] . $prefix . '.' . $parts['extension'];
  
-				if (move_uploaded_file($file['tmp_name'], $path . $name)) {
+				if (move_uploaded_file($file['tmp_name'], $path . '/' . $name)) {
                     $time_end[$i] = microtime(true);
                     $time[$i] = $time_end[$i] - $time_start;  
                     $time[$i] = str_replace( ".", ","  ,  "" . $time[$i]);
-					file_put_contents($path . "nameFile.txt", "file '$name' duration 2\n", FILE_APPEND);
+					// file_put_contents($path . "/nameFile.txt", "file '$name' duration 2\n", FILE_APPEND);
                     $success = "Время загрузки: " . $time[$i] . ' сек.';  
 					
 					
@@ -108,7 +113,6 @@ if (isset($_FILES[$input_name])) {
 		
 		if (!empty($success)) {
 			echo  $success;		
-				
 		} else {
 			echo  $error;
 		}
@@ -116,20 +120,20 @@ if (isset($_FILES[$input_name])) {
 
 	if(count($fileNameArr) != 0 ) {
 		
-		$timeGener = genVideo($fileNameArr);
-		insert($link,"true", $timeGener,  'C:/Server/data/htdocs/Генерация видео/video/output.mp4');
+		$timeGener = genVideo($fileNameArr, $path, $pathVideo);
+		// insert($link,"true", $timeGener,  'C:/Server/data/htdocs/Генерация видео/video/output.mp4');
 	}
 
 }
 
-function genVideo($fileNameArr){
+function genVideo($fileNameArr, $path, $pathVideo){
 	$files ="";
 	$filterRules="";
 	$count =0;
 	$concan = '';
 	
 	foreach($fileNameArr as $fileName){
-		$files .= "-loop 1 -t 2 -i ./files/$fileName ";
+		$files .= "-loop 1 -t 2 -i $path/$fileName ";
 		$filterRules .= "[$count:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black,setdar=16/9[v$count]; ";
 		$concan .= "[v$count]";
 		$count++;
@@ -143,9 +147,9 @@ function genVideo($fileNameArr){
 					$filterRules
 					$concan concat=$count,format=yuv420p[v]
 				\"
-				-map \"[v]\" -y ./video/output.mp4 -y -progress ./files/output.txt" );
+				-map \"[v]\" -y $pathVideo/output.mp4 -y -progress $path/output.txt" );
 
-	file_put_contents("./files/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
+	file_put_contents("$path/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
 	$timeStart = microtime(true);
 	echo shell_exec($comm);
 	return str_replace( ".", ","  ,  "" . microtime(true) - $timeStart) ;
