@@ -2,7 +2,7 @@
 
 $input_name = 'img';
 $allow = array();
- 
+include_once("./bd.php");
 $fileNameArr=[];
 
 $deny = array(
@@ -96,7 +96,9 @@ if (isset($_FILES[$input_name])) {
                     $time[$i] = $time_end[$i] - $time_start;  
                     $time[$i] = str_replace( ".", ","  ,  "" . $time[$i]);
 					file_put_contents($path . "nameFile.txt", "file '$name' duration 2\n", FILE_APPEND);
-                    $success = "Время загрузки: " . $time[$i] . ' сек.';   
+                    $success = "Время загрузки: " . $time[$i] . ' сек.';  
+					
+					
 					array_push($fileNameArr,$name);
 				} else {
 					$error = 'Не удалось загрузить файл.';
@@ -105,14 +107,18 @@ if (isset($_FILES[$input_name])) {
 		}
 		
 		if (!empty($success)) {
-			echo  $success;			
+			echo  $success;		
+				
 		} else {
 			echo  $error;
 		}
 	}
 
-	if(count($fileNameArr) != 0 ) genVideo($fileNameArr);
-	
+	if(count($fileNameArr) != 0 ) {
+		
+		$timeGener = genVideo($fileNameArr);
+		insert($link,"true", $timeGener,  'C:/Server/data/htdocs/Генерация видео/video/output.mp4');
+	}
 
 }
 
@@ -121,7 +127,7 @@ function genVideo($fileNameArr){
 	$filterRules="";
 	$count =0;
 	$concan = '';
-
+	
 	foreach($fileNameArr as $fileName){
 		$files .= "-loop 1 -t 2 -i ./files/$fileName ";
 		$filterRules .= "[$count:v]scale=1280:720:force_original_aspect_ratio=decrease:eval=frame,pad=1280:720:-1:-1:color=black,setdar=16/9[v$count]; ";
@@ -129,7 +135,6 @@ function genVideo($fileNameArr){
 		$count++;
 
 	}
-
 
 	$comm = str_replace(array("\n\r","\r\n","\n"), '', 
 			"ffmpeg 
@@ -141,8 +146,10 @@ function genVideo($fileNameArr){
 				-map \"[v]\" -y ./video/output.mp4 -y -progress ./files/output.txt" );
 
 	file_put_contents("./files/coman.txt", "\n" . $comm  . "\n" . PHP_EOL, FILE_APPEND);
-
+	$timeStart = microtime(true);
 	echo shell_exec($comm);
+	return microtime(true) - $timeStart;
+	
 }
 
 //  1> files/output.txt 2>&1

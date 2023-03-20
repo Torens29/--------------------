@@ -10,9 +10,12 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    border: 2px solid black;
+    padding: 10px;
 }
 
 .formElem__wrap {
+    width: 100%;
     display: flex;
     flex-direction: row;
     margin-bottom: 10px;
