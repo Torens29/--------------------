@@ -48,6 +48,8 @@ function progress(formElem) {
                 if(prog[1] == "progress=end") {
                     linkOfDownload.style.display= 'block';
                     clearInterval(interval);
+                }else if(prog[0] == ''){
+                    clearInterval(interval);
                 }
             });
     }, 1000); 
